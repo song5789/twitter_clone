@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import LoadingScreen from "./components/loading-screen";
 import { auth } from "./firebase";
 import ProtectedRoute from "./components/protected-route";
-import ResetPassword from "./components/reset-password";
+import ResetPassword from "./routes/reset-password";
 
 const router = createBrowserRouter([
   {

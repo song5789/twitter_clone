@@ -1,5 +1,5 @@
 import { sendPasswordResetEmail } from "firebase/auth";
-import { Error, Input, Title, Wrapper, Form } from "./auth-components";
+import { Error, Input, Title, Wrapper, Form } from "../components/auth-components";
 import { useState } from "react";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
