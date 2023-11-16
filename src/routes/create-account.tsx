@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
@@ -40,6 +40,7 @@ export default function CreateAccount() {
       await updateProfile(credentials.user, {
         displayName: name,
       });
+      await sendEmailVerification(credentials.user);
       navigate("/");
     } catch (e) {
       if (e instanceof FirebaseError) {
