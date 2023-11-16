@@ -8,14 +8,13 @@ import { FirebaseError } from "firebase/app";
 export default function ResetPassword() {
   const [resetInfo, setInfo] = useState({
     email: "",
-    error: "",
   });
+  const [error, setError] = useState("");
   const [isLoading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { email, error } = resetInfo;
+  const { email } = resetInfo;
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e);
     const {
       target: { name, value },
     } = e;
@@ -25,31 +24,17 @@ export default function ResetPassword() {
     });
   };
 
-  const onReset = () => {
-    setInfo({
-      email: "",
-      error: "",
-    });
-  };
-
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setInfo({
-      ...resetInfo,
-      error: "",
-    });
+    setError("");
     if (isLoading || email === "") return;
     try {
       setLoading(true);
       await sendPasswordResetEmail(auth, email);
       navigate("/login");
-      onReset();
     } catch (e) {
       if (e instanceof FirebaseError) {
-        setInfo({
-          ...resetInfo,
-          error: e.code,
-        });
+        setError(e.message);
       }
     } finally {
       setLoading(false);
