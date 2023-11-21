@@ -1,13 +1,22 @@
 import styled from "styled-components";
-import { useState } from "react";
-import { addDoc, collection, updateDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { doc, updateDoc } from "firebase/firestore";
 import { auth, db, storage } from "../firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+
+interface TweetInfo {
+  tweet: string;
+  userId: string;
+  id: string;
+  setEditToggle: any;
+  photo?: string;
+}
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin: 20px 20px 0 0;
 `;
 
 const TextArea = styled.textarea`
@@ -63,70 +72,68 @@ const SubmitBtn = styled.input`
   }
 `;
 
-export default function PostTweetForm() {
+export default function EditTweetForm({ tweet, userId, id, setEditToggle, photo }: TweetInfo) {
   const [isLoading, setLoading] = useState(false);
-  const [tweet, setTweet] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-
+  const [editTweet, setEditTweet] = useState("");
+  const [editPhoto, setEditPhoto] = useState<File | null>(null);
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setTweet(e.target.value);
+    setEditTweet(e.target.value);
   };
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
     if (files && files.length === 1) {
-      // 파일 ChangeEvent, 들어온 파일 사이즈가 1MB 이상이라면 경고를 띄우고 업로드를 중단함.
       if (files[0].size > 1024 * 1024) {
         alert("1MB 이하의 사진만 업로드 가능합니다.");
         return;
       }
-      setFile(files[0]);
+      setEditPhoto(files[0]);
     }
   };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    // 새로고침 방지
     e.preventDefault();
-    // 현재 로그인된 유저정보를 불러옴.
     const user = auth.currentUser;
-    if (!user || isLoading || tweet === "" || tweet.length > 180) return;
+    if (!user || isLoading || editTweet === "" || editTweet.length > 180) return;
 
     try {
       setLoading(true);
-      // addDoc(collectionRef, data)
-      // collection(firestore, path)
-      const doc = await addDoc(collection(db, "tweets"), {
-        tweet,
-        createAt: Date.now(),
-        username: user.displayName || "Annoymous",
-        userId: user.uid,
+      // doc(firestore, path, path segment), db에서 수정할 트윗의 참조값을 불러옴
+      const docRef = await doc(db, "tweets", id);
+      await updateDoc(docRef, {
+        tweet: editTweet,
+        updateAt: Date.now(),
       });
-      // 업로드된 파일이 있다면
-      if (file) {
-        // 저장 경로 지정.
-        // ref(storage, url)
-        const locationRef = ref(storage, `tweets/${user.uid}/${doc.id}`);
-        // uploadBytes(storageRef, file), 실행 후 결과에 대한 Promise 를 반환.
-        const result = await uploadBytes(locationRef, file);
-        // getDownloadURL(ref), 반환된 결과에서 참조값을 받아 이미지 URL를 불러옴.
-        const url = await getDownloadURL(result.ref);
-        // updateDoc(docRef, data), 작성한 트윗에 이미지 URL 을 추가함.
-        await updateDoc(doc, {
+      // 사진을 수정했다면
+      if (editPhoto) {
+        // 기존 사진이 있을경우 기존 사진을 스토리지에서 삭제함.
+        if (photo) {
+          const originRef = ref(storage, `tweets/${userId}/${id}`);
+          await deleteObject(originRef);
+        }
+        // 새로운 사진을 기존의 경로에 그대로 업로드한 뒤, 수정할 트윗에 이미지 url 추가. (사진이 없었다면 사진을 추가하는게 됨.)
+        const newRef = ref(storage, `tweets/${userId}/${id}`);
+        const uploadRes = await uploadBytes(newRef, editPhoto);
+        const url = await getDownloadURL(uploadRes.ref);
+        await updateDoc(docRef, {
           photo: url,
         });
       }
-      setTweet("");
-      setFile(null);
+      setEditToggle(false);
     } catch (e) {
       console.log(e);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setEditTweet(tweet);
+  }, []);
   return (
     <Form onSubmit={onSubmit}>
-      <TextArea required rows={5} maxLength={180} onChange={onChange} value={tweet} placeholder="What is happning?!" />
-      <AttachFileButton htmlFor="file">{file ? "Photo added ✅" : "Add Photo"}</AttachFileButton>
-      <AttachFileInput onChange={onFileChange} type="file" id="file" accept="image/*" />
-      <SubmitBtn type="submit" value={isLoading ? "Posting..." : "Post Tweet"} />
+      <TextArea required rows={5} maxLength={180} onChange={onChange} value={editTweet} placeholder="What is happning?!" />
+      <AttachFileButton htmlFor="editfile">{editPhoto ? "Photo added ✅" : "Add Photo"}</AttachFileButton>
+      <AttachFileInput onChange={onFileChange} type="file" id="editfile" accept="image/*" />
+      <SubmitBtn type="submit" value={isLoading ? "Posting..." : "Update Tweet"} />
     </Form>
   );
 }
