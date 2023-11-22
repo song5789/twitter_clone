@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db, storage } from "../firebase";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 interface TweetInfo {
   tweet: string;
@@ -72,7 +72,7 @@ const SubmitBtn = styled.input`
   }
 `;
 
-export default function EditTweetForm({ tweet, userId, id, setEditToggle, photo }: TweetInfo) {
+export default function EditTweetForm({ tweet, userId, id, setEditToggle }: TweetInfo) {
   const [isLoading, setLoading] = useState(false);
   const [editTweet, setEditTweet] = useState("");
   const [editPhoto, setEditPhoto] = useState<File | null>(null);
@@ -104,11 +104,6 @@ export default function EditTweetForm({ tweet, userId, id, setEditToggle, photo 
       });
       // 사진을 수정했다면
       if (editPhoto) {
-        // 기존 사진이 있을경우 기존 사진을 스토리지에서 삭제함.
-        if (photo) {
-          const originRef = ref(storage, `tweets/${userId}/${id}`);
-          await deleteObject(originRef);
-        }
         // 새로운 사진을 기존의 경로에 그대로 업로드한 뒤, 수정할 트윗에 이미지 url 추가. (사진이 없었다면 사진을 추가하는게 됨.)
         const newRef = ref(storage, `tweets/${userId}/${id}`);
         const uploadRes = await uploadBytes(newRef, editPhoto);

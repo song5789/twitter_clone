@@ -1,4 +1,4 @@
-import { GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { GithubAuthProvider, browserSessionPersistence, setPersistence, signInWithPopup } from "firebase/auth";
 import styled from "styled-components";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +30,7 @@ export default function GithubButton() {
   const onClick = async () => {
     try {
       const provider = new GithubAuthProvider();
+      await setPersistence(auth, browserSessionPersistence);
       await signInWithPopup(auth, provider);
       navigate("/");
     } catch (e) {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { auth } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { browserSessionPersistence, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
 import { Error, Form, Input, OrLine, Switcher, Title, Wrapper } from "../components/auth-components";
 import GithubButton from "../components/github-btn";
 
@@ -35,6 +35,7 @@ export default function Login() {
         ...info,
         isLoading: true,
       });
+      await setPersistence(auth, browserSessionPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (e) {

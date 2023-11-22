@@ -16,6 +16,7 @@ const Menu = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  border-right: 1px solid gray;
 `;
 const MenuItem = styled.div`
   cursor: pointer;
@@ -29,6 +30,9 @@ const MenuItem = styled.div`
   svg {
     width: 30px;
     fill: white;
+  }
+  &:hover {
+    opacity: 0.8;
   }
 
   &.log-out {
