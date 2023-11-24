@@ -12,6 +12,7 @@ const Wrapper = styled.div`
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 15px;
+  width: 100% !important;
 `;
 
 const Column = styled.div``;
@@ -95,7 +96,7 @@ export default function Tweet({ username, photo, tweet, userId, id, updateAt }: 
           ) : null}
         </Row>
       </Column>
-      <Column>{photo ? <Photo src={photo} /> : null}</Column>
+      {editToggle ? null : <Column>{photo ? <Photo src={photo} /> : null}</Column>}
     </Wrapper>
   );
 }

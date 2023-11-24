@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import DeletePhoto from "./delete-photo";
 
 interface TweetInfo {
   tweet: string;
@@ -11,6 +12,11 @@ interface TweetInfo {
   setEditToggle: any;
   photo?: string;
 }
+
+const Wrapper = styled.div`
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+`;
 
 const Form = styled.form`
   display: flex;
@@ -72,8 +78,9 @@ const SubmitBtn = styled.input`
   }
 `;
 
-export default function EditTweetForm({ tweet, userId, id, setEditToggle }: TweetInfo) {
+export default function EditTweetForm({ tweet, userId, id, setEditToggle, photo }: TweetInfo) {
   const [isLoading, setLoading] = useState(false);
+  const [photoLink, setPhotoLink] = useState("");
   const [editTweet, setEditTweet] = useState("");
   const [editPhoto, setEditPhoto] = useState<File | null>(null);
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -121,14 +128,18 @@ export default function EditTweetForm({ tweet, userId, id, setEditToggle }: Twee
   };
 
   useEffect(() => {
+    if (photo) setPhotoLink(photo);
     setEditTweet(tweet);
   }, []);
   return (
-    <Form onSubmit={onSubmit}>
-      <TextArea required rows={5} maxLength={180} onChange={onChange} value={editTweet} placeholder="What is happning?!" />
-      <AttachFileButton htmlFor="editfile">{editPhoto ? "Photo added ✅" : "Add Photo"}</AttachFileButton>
-      <AttachFileInput onChange={onFileChange} type="file" id="editfile" accept="image/*" />
-      <SubmitBtn type="submit" value={isLoading ? "Posting..." : "Update Tweet"} />
-    </Form>
+    <Wrapper>
+      <Form onSubmit={onSubmit}>
+        <TextArea required rows={5} maxLength={180} onChange={onChange} value={editTweet} placeholder="무슨일이 일어나고있나요?" />
+        <AttachFileButton htmlFor="editfile">{editPhoto ? "사진 추가됨 ✅" : "사진 수정"}</AttachFileButton>
+        <AttachFileInput onChange={onFileChange} type="file" id="editfile" accept="image/*" />
+        <SubmitBtn type="submit" value={isLoading ? "Posting..." : "수정"} />
+      </Form>
+      {photo ? <DeletePhoto photoLink={photoLink} userId={userId} id={id} /> : null}
+    </Wrapper>
   );
 }

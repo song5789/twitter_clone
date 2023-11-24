@@ -56,12 +56,12 @@ export default function EditProfileNameForm({ name, toggle }: EditInfo) {
       console.log(e);
     }
   };
-
-  return (
-    <Form onSubmit={onSubmit}>
-      <NameInput onChange={onChange} value={editName} maxLength={10} />
-      <Button type="submit" value={"수정"} />
-      <Button type="button" color={"tomato"} value={"취소"} onClick={onToggle} />
-    </Form>
-  );
+  if (editName)
+    return (
+      <Form onSubmit={onSubmit}>
+        <NameInput onChange={onChange} value={editName} maxLength={10} />
+        <Button type="submit" value={"수정"} />
+        <Button type="button" color={"tomato"} value={"취소"} onClick={onToggle} />
+      </Form>
+    );
 }
