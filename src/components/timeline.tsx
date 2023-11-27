@@ -15,6 +15,7 @@ export interface ITweet {
   username: string;
   createAt: number;
   updateAt?: number;
+  userAvatar?: string;
 }
 
 const Wrapper = styled.div`
@@ -71,7 +72,7 @@ export default function Timeline() {
           .docs 자체를 사용하려하면 안됨. 내부 요소는 QueryDocumentSnapshot 로 감싸져있음. 
           .data()는 실제 데이터를 추출하는 메소드인듯함.
           */
-          const { tweet, createAt, userId, username, photo, updateAt } = doc.data();
+          const { tweet, createAt, userId, username, photo, updateAt, userAvatar } = doc.data();
           // 객체로 만들어 반환, 배열은 아래의 형태를 가진 객체들로 이뤄질것.
           return {
             tweet,
@@ -81,6 +82,7 @@ export default function Timeline() {
             photo,
             id: doc.id,
             updateAt: updateAt || null,
+            userAvatar: userAvatar || null,
             // doc.id 는 문서의 고유 id, userId 와는 다름.
           };
         });

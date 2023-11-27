@@ -98,6 +98,7 @@ export default function PostTweetForm() {
         createAt: Date.now(),
         username: user.displayName || "Annoymous",
         userId: user.uid,
+        userAvatar: user.photoURL,
       });
       // 업로드된 파일이 있다면
       if (file) {

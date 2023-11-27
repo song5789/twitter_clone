@@ -15,12 +15,15 @@ const Wrapper = styled.div`
   width: 100% !important;
 `;
 
-const Column = styled.div``;
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
 
 const Row = styled.div`
   display: flex;
   gap: 10px;
-  margin-top: 20px;
 `;
 
 const Photo = styled.img`
@@ -29,9 +32,11 @@ const Photo = styled.img`
   border-radius: 15px;
 `;
 
-const Username = styled.span`
+const Username = styled.div`
   font-weight: 600;
   font-size: 15px;
+  display: flex;
+  align-items: center;
 `;
 
 const Payload = styled.p`
@@ -51,9 +56,26 @@ const TweetButton = styled.button<{ color?: string }>`
   cursor: pointer;
 `;
 
+const Avatar = styled.div`
+  width: 30px;
+  overflow: hidden;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #1d9bf0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  svg {
+    width: 50px;
+  }
+`;
+const AvatarImg = styled.img`
+  width: 100%;
+`;
+
 // props 는 객체로 넘어옴. 구조분해할당으로 필요한 값을 뽑아오자.
 // 타입 지정으로 서버에서 넘어온값만 들어오도록 함.
-export default function Tweet({ username, photo, tweet, userId, id, updateAt }: ITweet) {
+export default function Tweet({ username, photo, tweet, userId, id, updateAt, userAvatar }: ITweet) {
   const [editToggle, setEditToggle] = useState(false);
   const user = auth.currentUser;
   const onDelete = async () => {
@@ -82,9 +104,24 @@ export default function Tweet({ username, photo, tweet, userId, id, updateAt }: 
   return (
     <Wrapper>
       <Column>
-        <Username>
-          {username} {updateAt ? " | (수정된 트윗)" : null}
-        </Username>
+        <Row>
+          <Avatar>
+            {userAvatar ? (
+              <AvatarImg src={userAvatar} />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                <path
+                  fillRule="evenodd"
+                  d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </Avatar>
+          <Username>
+            {username} {updateAt ? " | (수정된 트윗)" : null}
+          </Username>
+        </Row>
         {editToggle ? <EditTweetForm tweet={tweet} userId={userId} id={id} photo={photo} setEditToggle={setEditToggle} /> : <Payload>{tweet}</Payload>}
         {/* 삭제는 현재 로그인된 유저와 트윗의 userId 가 같을 때만 가능 */}
         <Row>
