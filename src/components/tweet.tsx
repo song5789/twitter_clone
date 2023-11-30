@@ -39,6 +39,12 @@ const Username = styled.div`
   align-items: center;
 `;
 
+const DateContainer = styled.div`
+  font-size: 14px;
+  color: gray;
+  font-style: oblique;
+`;
+
 const Payload = styled.p`
   margin: 10px 0;
   font-size: 18px;
@@ -75,7 +81,7 @@ const AvatarImg = styled.img`
 
 // props 는 객체로 넘어옴. 구조분해할당으로 필요한 값을 뽑아오자.
 // 타입 지정으로 서버에서 넘어온값만 들어오도록 함.
-export default function Tweet({ username, photo, tweet, userId, id, updateAt, userAvatar }: ITweet) {
+export default function Tweet({ username, photo, tweet, userId, id, updateAt, createAt, userAvatar }: ITweet) {
   const [editToggle, setEditToggle] = useState(false);
   const user = auth.currentUser;
   const onDelete = async () => {
@@ -118,9 +124,7 @@ export default function Tweet({ username, photo, tweet, userId, id, updateAt, us
               </svg>
             )}
           </Avatar>
-          <Username>
-            {username} {updateAt ? " | (수정된 트윗)" : null}
-          </Username>
+          <Username>{username}</Username>
         </Row>
         {editToggle ? <EditTweetForm tweet={tweet} userId={userId} id={id} photo={photo} setEditToggle={setEditToggle} /> : <Payload>{tweet}</Payload>}
         {/* 삭제는 현재 로그인된 유저와 트윗의 userId 가 같을 때만 가능 */}
@@ -131,6 +135,10 @@ export default function Tweet({ username, photo, tweet, userId, id, updateAt, us
               {editToggle ? "Cancel" : "Edit"}
             </TweetButton>
           ) : null}
+        </Row>
+        <Row>
+          <DateContainer>{updateAt ? new Date(updateAt).toLocaleDateString("ko-KR") : new Date(createAt).toLocaleDateString("ko-KR")}</DateContainer>
+          <DateContainer>{updateAt ? "(수정됨)" : "(작성됨)"}</DateContainer>
         </Row>
       </Column>
       {editToggle ? null : <Column>{photo ? <Photo src={photo} /> : null}</Column>}
