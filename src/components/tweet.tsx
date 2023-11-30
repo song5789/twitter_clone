@@ -80,7 +80,7 @@ export default function Tweet({ username, photo, tweet, userId, id, updateAt, us
   const user = auth.currentUser;
   const onDelete = async () => {
     const ok = confirm("해당 트윗을 삭제하시겠습니까?");
-    if (user?.uid !== userId || !ok) return;
+    if (user?.uid !== userId || !ok || !user) return;
     try {
       // deleteDoc(문서의 참조값), doc()에서 가져온 참조값을 토대로 해당 문서를 삭제.
       // doc() 에서 db, 삭제할 해당 컬렉션 과 삭제할 요소의 id 를 넘김

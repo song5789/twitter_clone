@@ -66,7 +66,7 @@ const Tweets = styled.div`
 
 export default function Profile() {
   const user = auth.currentUser;
-  const [avatar, setAvatar] = useState<string | null | undefined>("");
+  const [avatar, setAvatar] = useState(user?.photoURL);
   const [tweets, setTweets] = useState<ITweet[]>([]);
   const [toggle, setToggle] = useState(false);
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +88,7 @@ export default function Profile() {
 
     const snapshot = await getDocs(tweetQuery);
     const tweets = snapshot.docs.map((doc) => {
-      const { tweet, createAt, userId, username, photo, updateAt } = doc.data();
+      const { tweet, createAt, userId, username, photo, updateAt, userAvatar } = doc.data();
       return {
         tweet,
         createAt,
@@ -97,6 +97,7 @@ export default function Profile() {
         photo,
         id: doc.id,
         updateAt: updateAt || null,
+        userAvatar: userAvatar || null,
       };
     });
     setTweets(tweets);
@@ -105,7 +106,6 @@ export default function Profile() {
     setToggle(!toggle);
   };
   useEffect(() => {
-    setAvatar(user?.photoURL);
     fetchTweets();
   }, []);
   if (!user) {
@@ -116,7 +116,7 @@ export default function Profile() {
         <ProfileContainer>
           <AvatarUpload htmlFor="avatar">
             {avatar ? (
-              <AvatarImg src={avatar} />
+              <AvatarImg src={avatar ?? ""} />
             ) : (
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
                 <path
